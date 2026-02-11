@@ -2,21 +2,42 @@ using UnityEngine;
 
 public class BallBehavior : MonoBehaviour
 {
-    public float Speed = 3.0f;
-
-    Vector2 direction;
+    [SerializeField] public float _launchForce = 3.0f;
     
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    private Rigidbody2D _rb;
     void Start()
     {
-        direction.x = Random.value > 0.5f ? 1 : -1;
-        direction.y = Random.value > 0.5f ? 1 : -1;
+        _rb = GetComponent<Rigidbody2D>();
+        ResetBall();
+    }
+    
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        ResetBall();
     }
 
-    // Update is called once per frame
-    void Update()
+    void ResetBall()
     {
-        Vector3 movement = Speed * Time.deltaTime * direction;
-        transform.Translate(movement);
+        _rb.linearVelocity = Vector2.zero;
+        transform.position = Vector3.zero;
+
+        Vector2 direction = new Vector2(
+            GetNonZeroRandomFloat(),
+            GetNonZeroRandomFloat()
+        ).normalized;
+
+        _rb.AddForce(direction * _launchForce, ForceMode2D.Impulse);
     }
+    
+    float GetNonZeroRandomFloat(float min = -1.0f, float max = 1.0f)
+        {
+            float num;
+
+            do
+            {
+                num = Random.Range(min, max);    
+            } while (Mathf.Approximately(num, 0f));
+            
+            return num;
+        }
 }
